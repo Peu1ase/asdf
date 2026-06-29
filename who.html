@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 정보 - 2학기 자리배정</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .info-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card.highlight {
+            border-left-color: #4caf50;
+            background: #f1f8f4;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .info-card.highlight .info-value {
+            color: #4caf50;
+        }
+
+        .profile-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            align-items: center;
+        }
+
+        .profile-row:last-child {
+            border-bottom: none;
+        }
+
+        .profile-label {
+            font-weight: 600;
+            color: #333;
+            min-width: 150px;
+        }
+
+        .profile-value {
+            color: #666;
+            text-align: right;
+        }
+
+        .message-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .message-box p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .message-box strong {
+            color: #2e7d32;
+        }
+
+        .notice-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .notice-box p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .form-group input.error {
+            border-color: #e74c3c;
+            background: #fadbd8;
+        }
+
+        .form-group label.error {
+            color: #e74c3c;
+        }
+
+        .action-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-back {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-back:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge-pending {
+            background: #ffc107;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-value {
+                text-align: left;
+                margin-top: 8px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>내 정보 입력하기</h1>
+        </div>
+
+        <div class="content">
+            <div class="notice-box">
+                <p><strong>선택 기간 : </strong> 2026년 6월 30일 - 8월 17일</p>
+                <p style="margin-top: 8px;">선택 기간 동안 자리 선택이 가능하며, 필요시 변경할 수 있습니다. 마감일 이후로는 변경이 불가능하니 주의하세요.</p>
+            </div>
+
+            <div class="info-section">
+                <h2 class="section-title">사용자 정보</h2>
+                <div class="profile-section">
+                    <div class="form-group">
+                        <label for="userName">이름</label>
+                        <input type="text" id="userName" placeholder="이름을 입력하세요" value="" onchange="updateName()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-box">
+                <p><strong>안내사항 : </strong></p>
+                <p style="margin-top: 8px;">자리 선택은 선착순으로 진행됩니다. 원하는 자리가 이미 선택되었다면 다른 자리를 선택하시거나 나중에 다시 시도해주세요.</p>
+            </div>
+
+            <div class="info-section">
+                <h2 class="section-title">예상 질문</h2>
+                <div class="profile-section" style="background: #f8f9fa; border: 1px solid #ddd;">
+                    <div class="profile-row">
+                        <span class="profile-label">Q. 자리를 변경할 수 있나요?</span>
+                    </div>
+                    <div style="padding: 0 0 15px 0; color: #666; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                        A. 선택 기간 동안은 자리 변경이 가능합니다. 선택 완료 후 다시 선택 페이지에서 변경할 수 있습니다.
+                    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Q. 기간을 놓쳤다면?</span>
+                    </div>
+                    <div style="padding: 0 0 0 0; color: #666;">
+                        A. 개강 전날에 반대표가 메신저를 통해 먼저 연락을 드린 후 자리 선정을 도와드릴 예정입니다.
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-section">
+                <button onclick="goToChoose()" class="btn btn-primary">자리 선택하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateName() {
+            const nameInput = document.getElementById('userName');
+            nameInput.classList.remove('error');
+            document.querySelector('label[for="userName"]').classList.remove('error');
+            localStorage.setItem('userName', nameInput.value);
+        }
+
+        function goToChoose() {
+            const nameInput = document.getElementById('userName');
+            const nameValue = nameInput.value.trim();
+
+            if (!nameValue) {
+                nameInput.classList.add('error');
+                document.querySelector('label[for="userName"]').classList.add('error');
+                alert('이름을 입력해주세요!');
+ 
+                const userInfoSection = document.querySelector('.info-section:nth-of-type(2)');
+                userInfoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                nameInput.focus();
+                return false;
+            }
+
+            localStorage.setItem('userName', nameValue);
+            window.location.href = 'choose.html';
+        }
+
+        window.addEventListener('load', function() {
+            const savedName = localStorage.getItem('userName');
+            if (savedName) {
+                document.getElementById('userName').value = savedName;
+            }
+        });
+    </script>

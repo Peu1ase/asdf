@@ -57,7 +57,7 @@
 
         .seating-area {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             margin-bottom: 50px;
         }
@@ -293,6 +293,8 @@
                         <div class="seat" data-seat="1-6" onclick="selectSeat(this, '1-6')">1-6</div>
                         <div class="seat" data-seat="1-7" onclick="selectSeat(this, '1-7')">1-7</div>
                         <div class="seat" data-seat="1-8" onclick="selectSeat(this, '1-8')">1-8</div>
+                        <div class="seat" data-seat="1-9" onclick="selectSeat(this, '1-9')">1-9</div>
+                        <div class="seat" data-seat="1-10" onclick="selectSeat(this, '1-10')">1-10</div>
                     </div>
                 </div>
 
@@ -307,6 +309,8 @@
                         <div class="seat" data-seat="2-6" onclick="selectSeat(this, '2-6')">2-6</div>
                         <div class="seat" data-seat="2-7" onclick="selectSeat(this, '2-7')">2-7</div>
                         <div class="seat" data-seat="2-8" onclick="selectSeat(this, '2-8')">2-8</div>
+                        <div class="seat" data-seat="2-9" onclick="selectSeat(this, '2-9')">2-9</div>
+                        <div class="seat" data-seat="2-10" onclick="selectSeat(this, '2-10')">2-10</div>
                     </div>
                 </div>
 
@@ -320,19 +324,9 @@
                         <div class="seat" data-seat="3-5" onclick="selectSeat(this, '3-5')">3-5</div>
                         <div class="seat" data-seat="3-6" onclick="selectSeat(this, '3-6')">3-6</div>
                         <div class="seat" data-seat="3-7" onclick="selectSeat(this, '3-7')">3-7</div>
-                    </div>
-                </div>
-
-                <div class="table">
-                    <div class="table-title">테이블 4</div>
-                    <div class="seats-grid">
-                        <div class="seat" data-seat="4-1" onclick="selectSeat(this, '4-1')">4-1</div>
-                        <div class="seat" data-seat="4-2" onclick="selectSeat(this, '4-2')">4-2</div>
-                        <div class="seat" data-seat="4-3" onclick="selectSeat(this, '4-3')">4-3</div>
-                        <div class="seat" data-seat="4-4" onclick="selectSeat(this, '4-4')">4-4</div>
-                        <div class="seat" data-seat="4-5" onclick="selectSeat(this, '4-5')">4-5</div>
-                        <div class="seat" data-seat="4-6" onclick="selectSeat(this, '4-6')">4-6</div>
-                        <div class="seat" data-seat="4-7" onclick="selectSeat(this, '4-7')">4-7</div>
+                        <div class="seat" data-seat="3-8" onclick="selectSeat(this, '3-8')">3-8</div>
+                        <div class="seat" data-seat="3-9" onclick="selectSeat(this, '3-9')">3-9</div>
+                        <div class="seat" data-seat="3-10" onclick="selectSeat(this, '3-10')">3-10</div>
                     </div>
                 </div>
             </div>
@@ -345,148 +339,126 @@
         </div>
     </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        let currentSelected = null;
+        let userSeats = {};
 
-<script>
-    // 💡 사용자님의 Firebase 고유 설정값 적용 완료!
-    const firebaseConfig = {
-        apiKey: "AIzaSyC75RiPZjAbuAUws_iZboHxB2cJZZ9rskA",
-        authDomain: "class-7a4ed.firebaseapp.com",
-        projectId: "class-7a4ed",
-        storageBucket: "class-7a4ed.firebasestorage.app",
-        messagingSenderId: "789754864267",
-        appId: "1:789754864267:web:9fd120f57ef20448f1ea8e"
-    };
-
-    // Firebase 초기화
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let currentSelected = null;
-    let userSeats = {};
-
-    // DB에서 실시간으로 데이터 변화를 감지하여 화면을 업데이트합니다.
-    window.addEventListener('load', function() {
-        db.collection("seats").doc("currentLayout")
-            .onSnapshot((doc) => {
-                if (doc.exists) {
-                    userSeats = doc.data();
-                } else {
-                    userSeats = {};
-                }
-                resetAllSeatsUI(); 
-                restoreSeatsUI();
-            });
-    });
-
-    // 화면의 모든 자리를 초기 상태(흰색)로 리셋하는 함수
-    function resetAllSeatsUI() {
-        const allSeats = document.querySelectorAll('.seat');
-        allSeats.forEach(element => {
-            const seatId = element.getAttribute('data-seat');
-            element.classList.remove('completed', 'selected');
-            element.innerHTML = seatId;
+        window.addEventListener('load', function() {
+            loadSeatsFromStorage();
+            restoreSeatsUI();
         });
-    }
 
-    function restoreSeatsUI() {
-        for (let seatId in userSeats) {
-            const seatInfo = userSeats[seatId];
-            const element = document.querySelector(`.seat[data-seat="${seatId}"]`);
-            
-            if (element && seatInfo.status === 'completed') {
-                element.classList.add('completed');
-                element.innerHTML = `${seatId} <br><small>(${seatInfo.userName})</small>`;
+        function loadSeatsFromStorage() {
+            const saved = localStorage.getItem('userSeats');
+            if (saved) {
+                userSeats = JSON.parse(saved);
             }
         }
-    }
 
-    function selectSeat(element, seatId) {
-        if (element.classList.contains('completed')) {
-            const completedSeat = userSeats[seatId];
-            const currentUserName = localStorage.getItem('userName') || '사용자';
+        function saveSeatsToStorage() {
+            localStorage.setItem('userSeats', JSON.stringify(userSeats));
+        }
 
-            if (completedSeat && completedSeat.userName === currentUserName) {
-                if (confirm(`${seatId} 자리를 취소하시겠습니까?`)) {
-                    delete userSeats[seatId];
-                    db.collection("seats").doc("currentLayout").set(userSeats)
-                        .then(() => {
-                            if (currentSelected === element) currentSelected = null;
-                            document.getElementById('selectedInfo').style.display = 'none';
-                            alert('자리가 취소되었습니다.');
-                        });
+        function restoreSeatsUI() {
+            for (let seatId in userSeats) {
+                const seatInfo = userSeats[seatId];
+                const element = document.querySelector(`.seat[data-seat="${seatId}"]`);
+                
+                if (element && seatInfo.status === 'completed') {
+                    element.classList.add('completed');
+                    element.innerHTML = `${seatId} <br><small>(${seatInfo.userName})</small>`;
+                }
+            }
+        }
+
+        function selectSeat(element, seatId) {
+            if (element.classList.contains('completed')) {
+                const completedSeat = userSeats[seatId];
+                const currentUserName = localStorage.getItem('userName') || '사용자';
+
+                if (completedSeat && completedSeat.userName === currentUserName) {
+                    if (confirm(`${seatId} 자리를 취소하시겠습니까?`)) {
+                        delete userSeats[seatId];
+                        saveSeatsToStorage();
+
+                        element.classList.remove('completed');
+                        element.classList.remove('selected');
+                        element.innerHTML = seatId;
+
+                        if (currentSelected === element) {
+                            currentSelected = null;
+                        }
+                        document.getElementById('selectedInfo').style.display = 'none';
+                        alert('자리가 취소되었습니다.');
+                    }
+                    return;
+                } 
+                
+                if (completedSeat && completedSeat.userName) {
+                    alert(`${completedSeat.userName}님이 이미 선택한 자리입니다.`);
+                } else {
+                    alert('이미 선택 완료된 자리입니다.');
                 }
                 return;
-            } 
-            
-            if (completedSeat && completedSeat.userName) {
-                alert(`${completedSeat.userName}님이 이미 선택한 자리입니다.`);
-            } else {
-                alert('이미 선택 완료된 자리입니다.');
             }
-            return;
-        }
 
-        if (currentSelected === element) {
-            clearSelection();
-            return;
-        }
-
-        if (currentSelected && currentSelected !== element) {
-            alert('이미 선택 중인 자리가 있습니다. 먼저 선택 취소를 해주세요.');
-            return;
-        }
-
-        element.classList.add('selected');
-        currentSelected = element;
-
-        const infoDiv = document.getElementById('selectedInfo');
-        document.getElementById('selectedSeat').textContent = seatId;
-        infoDiv.style.display = 'block';
-    }
-
-    function clearSelection() {
-        if (currentSelected) {
-            currentSelected.classList.remove('selected');
-            currentSelected = null;
-        }
-        document.getElementById('selectedInfo').style.display = 'none';
-    }
-
-    function completeSelection() {
-        if (!currentSelected) {
-            alert('자리를 선택해주세요.');
-            return;
-        }
-
-        const seatId = document.getElementById('selectedSeat').textContent;
-        const userName = localStorage.getItem('userName') || '사용자';
-
-        // 중복 선택 방지 (이미 다른 자리를 선점했는지 확인)
-        for (let existingSeatId in userSeats) {
-            if (userSeats[existingSeatId].userName === userName) {
-                alert(`이미 ${existingSeatId} 자리를 선택하셨습니다. \n한 사람당 한 자리만 선택할 수 있습니다.\n기존 자리를 취소한 후 다시 시도해주세요.`);
+            if (currentSelected === element) {
+                clearSelection();
                 return;
             }
+
+            if (currentSelected && currentSelected !== element) {
+                alert('이미 선택 중인 자리가 있습니다. 먼저 선택 취소를 해주세요.');
+                return;
+            }
+
+            element.classList.add('selected');
+            currentSelected = element;
+
+            const infoDiv = document.getElementById('selectedInfo');
+            document.getElementById('selectedSeat').textContent = seatId;
+            infoDiv.style.display = 'block';
         }
 
-        // DB에 내 자리 정보 추가하여 저장
-        userSeats[seatId] = {
-            status: 'completed',
-            userName: userName
-        };
-
-        db.collection("seats").doc("currentLayout").set(userSeats)
-            .then(() => {
-                alert(`${userName}님이 ${seatId} 자리를 성공적으로 선택했습니다.`);
+        function clearSelection() {
+            if (currentSelected) {
+                currentSelected.classList.remove('selected');
                 currentSelected = null;
-                document.getElementById('selectedInfo').style.display = 'none';
-            })
-            .catch((error) => {
-                alert("저장 중 오류가 발생했습니다: " + error.message);
-            });
-    }
-</script>
+            }
+            document.getElementById('selectedInfo').style.display = 'none';
+        }
+
+        function completeSelection() {
+            if (!currentSelected) {
+                alert('자리를 선택해주세요.');
+                return;
+            }
+
+            const seatId = document.getElementById('selectedSeat').textContent;
+            const userName = localStorage.getItem('userName') || '사용자';
+
+            for (let existingSeatId in userSeats) {
+                if (userSeats[existingSeatId].userName === userName) {
+                    alert(`이미 ${existingSeatId} 자리를 선택하셨습니다. 한 사람당 한 자리만 선택할 수 있습니다.\n기존 자리를 취소한 후 다시 시도해주세요.`);
+                    return;
+                }
+            }
+
+            userSeats[seatId] = {
+                status: 'completed',
+                userName: userName
+            };
+            saveSeatsToStorage();
+
+            currentSelected.classList.remove('selected');
+            currentSelected.classList.add('completed');
+            currentSelected.innerHTML = `${seatId} <br><small>(${userName})</small>`;
+            
+            alert(`${userName}님이 ${seatId} 자리를 성공적으로 선택했습니다.`);
+            
+            currentSelected = null;
+            document.getElementById('selectedInfo').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
